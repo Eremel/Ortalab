@@ -32,7 +32,7 @@ function update_blind_amounts()
         G.GAME.blind.chips = get_blind_amount(G.GAME.round_resets.ante)*G.GAME.blind.mult*G.GAME.starting_params.ante_scaling
         G.GAME.blind.chip_text = number_format(G.GAME.blind.chips)
     end
-    if G.STATE == G.STATES.BLIND_SELECT then
+    if G.STATE == G.STATES.BLIND_SELECT and G.blind_select then
         G.blind_select:remove()
         G.blind_prompt_box:remove()
         G.blind_select = UIBox{

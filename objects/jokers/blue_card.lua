@@ -9,7 +9,7 @@ SMODS.Joker({
 	blueprint_compat = true,
 	eternal_compat = true,
 	perishable_compat = false,
-	config = {extra = {chips = 0, gain = 10}},
+	config = {extra = {chips = 0, gain = 6}},
 	loc_vars = function(self, info_queue, card)
         if card and Ortalab.config.artist_credits then info_queue[#info_queue+1] = {generate_ui = ortalab_artist_tooltip, key = 'gappie'} end
 		return {vars = {card.ability.extra.gain, card.ability.extra.chips}}
@@ -21,11 +21,11 @@ SMODS.Joker({
                 chip_mod = card.ability.extra.chips
             }
         end
-        if context.using_consumeable then
-            if context.consumeable.from_booster then
-                card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.gain
-                card_eval_status_text(card, 'extra', nil, nil, nil, {message = '+'..card.ability.extra.gain, colour = G.C.BLUE})
-            end
-        end
+        -- if context.using_consumeable then
+        --     if context.consumeable.from_booster then
+        --         card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.gain
+        --         card_eval_status_text(card, 'extra', nil, nil, nil, {message = '+'..card.ability.extra.gain, colour = G.C.BLUE})
+        --     end
+        -- end
     end
 })

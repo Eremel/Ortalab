@@ -1,7 +1,7 @@
 {
     "name": "Ortalab",
     "id": "ortalab",
-    "version": "0.9.0~demo-3.0",
+    "version": "0.9.0~demo-3.0.2",
     "website_url": "https://github.com/Eremel/Ortalab-Demo",
     "description": "Every action has an opposite reaction. In another world, in the nation of \"Virtue\", a simple indie developer created Ortalab, which so happened to be the opposite of our world's Balatro. This mod is intended to port everything from that parallel world to Balatro. Within this demo, it includes 75 Jokers, 10 Decks, 7 sets of Coupons, a new Consumable Type with Boosters - Loteria Cards, 8 Enhancements, 4 Editions, 12 patches, and 2 Stakes for you to try out.",
     "prefix": "ortalab",
@@ -11,6 +11,6 @@
     "badge_colour": "990000",
     "badge_text_colour": "E28585",
     "dependencies": [
-        "Steamodded (>=1.0.0~ALPHA-1213a)"
+        "Steamodded (>=1.0.0~ALPHA-1217a)"
     ]
 }

@@ -29,13 +29,13 @@ SMODS.Joker({
                     func = (function()
                         G.E_MANAGER:add_event(Event({
                             func = function() 
-                                local card = create_card('Loteria',G.consumeables, nil, nil, nil, nil, pseudorandom_element(zodiac_pool(), pseudoseed('ortalab_mathmagician')), 'car')
+                                local card = create_card('Loteria',G.consumeables)
                                 card:add_to_deck()
                                 G.consumeables:emplace(card)
                                 G.GAME.consumeable_buffer = G.GAME.consumeable_buffer - 1
                                 return true
                         end}))   
-                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('ortalab_zodiac_add'), colour = G.C.SET.Zodiac})
+                        card_eval_status_text(context.blueprint_card or card, 'extra', nil, nil, nil, {message = localize('ortalab_loteria_add'), colour = G.C.SET.Loteria})
                         return true
                 end)}))
             end

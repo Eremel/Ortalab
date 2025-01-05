@@ -30,7 +30,7 @@ match_indent = true
 payload = '''
 local iou_count = 0
 for i=1, #scoring_hand do
-    if scoring_hand[i].config.center.key == 'm_'..Ortalab.prefix..'_iou' then
+    if scoring_hand[i].config.center.key == 'm_'..Ortalab.prefix..'_iou' and not scoring_hand[i].debuff then
         local reps = {1}
                     
         --From Red seal

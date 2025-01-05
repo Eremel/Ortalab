@@ -42,16 +42,21 @@ match_indent = true
 payload = '''if _pool_size == 0 then
     _pool = EMPTY(G.ARGS.TEMP_POOL)
     if G.GAME.modifiers.ortalab_only then
-        local new_pool = get_current_pool('Loteria')
-        local replacement_key = pseudorandom_element(new_pool, pseudoseed('ortalab_only'))
-        while replacement_key == 'UNAVAILABLE' do
-            replacement_key = pseudorandom_element(new_pool, pseudoseed('ortalab_only_resample'))
+        local loteria_pool = get_current_pool('Loteria')
+        local replacement_loteria = pseudorandom_element(loteria_pool, pseudoseed('ortalab_only'))
+        while replacement_loteria == 'UNAVAILABLE' do
+            replacement_loteria = pseudorandom_element(loteria_pool, pseudoseed('ortalab_only_resample'))
+        end
+        local zodiac_pool = get_current_pool('Zodiac')
+        local replacement_zodiac = pseudorandom_element(zodiac_pool, pseudoseed('ortalab_only'))
+        while replacement_zodiac == 'UNAVAILABLE' do
+            replacement_zodiac = pseudorandom_element(zodiac_pool, pseudoseed('ortalab_only_resample'))
         end
         if SMODS.ConsumableTypes[_type] and SMODS.ConsumableTypes[_type].default and G.P_CENTERS[SMODS.ConsumableTypes[_type].default] then
             _pool[#_pool+1] = SMODS.ConsumableTypes[_type].default
-        elseif _type == 'Tarot' or _type == 'Tarot_Planet' then _pool[#_pool + 1] = replacement_key
-        elseif _type == 'Planet' then _pool[#_pool + 1] = replacement_key
-        elseif _type == 'Spectral' then _pool[#_pool + 1] = replacement_key
+        elseif _type == 'Tarot' or _type == 'Tarot_Planet' then _pool[#_pool + 1] = replacement_loteria
+        elseif _type == 'Planet' then _pool[#_pool + 1] = replacement_zodiac
+        elseif _type == 'Spectral' then _pool[#_pool + 1] = 'c_ortalab_rooster'
         elseif _type == 'Joker' then _pool[#_pool + 1] = "j_ortalab_jester"
         elseif _type == 'Demo' then _pool[#_pool + 1] = "j_ortalab_jester"
         elseif _type == 'Voucher' then _pool[#_pool + 1] = "v_blank"
@@ -62,3 +67,16 @@ payload = '''if _pool_size == 0 then
     end
 end
 '''
+
+## Patch SMODS get_pack
+# [[patches]]
+# [patches.pattern]
+# target = '=[SMODS _ "src/overrides.lua"]'
+# pattern = '''if add and not G.GAME.banned_keys[v.key] then cume = cume + (v.current_weight or 1); temp_in_pool[v.key] = true end'''
+# position = 'before'
+# match_indent = true
+# payload = '''
+# if v.kind ~= 'Buffoon' and v.kind ~= 'Standard' and G.GAME.modifiers.ortalab_only then
+#     if not v.mod or v.mod.id ~= 'ortalab' then add = false end
+# end
+# '''

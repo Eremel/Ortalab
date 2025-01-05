@@ -17,7 +17,7 @@ SMODS.Joker({
 	calculate = function(self, card, context)
         if context.setting_blind and not card.getting_sliced then
             ease_discard(card.ability.extra.discards)
-            ease_hands_played(-1 * (G.GAME.round_resets.hands - card.ability.extra.hands))
+            if not context.blueprint then ease_hands_played(-1 * (G.GAME.round_resets.hands - card.ability.extra.hands)) end
         end
     end
 })

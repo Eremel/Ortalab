@@ -167,6 +167,10 @@ SMODS.Voucher({
 	discovered = false,
 	available = true,
 	config = {extra = {ante_gain = 1, dollars = 35}},
+    in_pool = function(self)
+        if G.GAME.round_resets.blind_ante == 8 then return false end
+        return true
+    end,
 	redeem = function(self)
         ease_ante(self.config.extra.ante_gain)
         G.GAME.round_resets.blind_ante = G.GAME.round_resets.blind_ante or G.GAME.round_resets.ante
@@ -189,6 +193,10 @@ SMODS.Voucher({
 	available = false,
     requires = {'v_ortalab_abacus'},
 	config = {extra = {ante_gain = 1, joker_slots = 1}},
+    in_pool = function(self)
+        if G.GAME.round_resets.blind_ante == 8 then return false end
+        return true
+    end,
 	redeem = function(self)
         ease_ante(self.config.extra.ante_gain)
         G.GAME.round_resets.blind_ante = G.GAME.round_resets.blind_ante or G.GAME.round_resets.ante
@@ -352,33 +360,11 @@ local skip_blind = G.FUNCS.skip_blind
 G.FUNCS.skip_blind = function(e)
     if G.GAME.used_vouchers['v_ortalab_hoarding'] then
         local _tag = e.UIBox:get_UIE_by_ID('tag_container')
-        if _tag then 
-            add_tag(Tag(_tag.config.ref_table.key))
+        if _tag then
+            local tag = Tag(_tag.config.ref_table.key, false, _tag.config.ref_table.ability.blind_type)
+            tag:set_ability()
+            add_tag(tag)
         end
     end
-    G.E_MANAGER:add_event(Event({
-        trigger = 'after',
-        func = function()
-            if G.GAME.used_vouchers['v_ortalab_home_delivery'] then
-                if G.blind_select then 
-                    G.blind_select:remove()
-                    G.blind_prompt_box:remove()
-                    G.blind_select = nil
-                end
-                G.GAME.current_round.jokers_purchased = 0
-                G.GAME.current_round.used_packs = {}
-                G.GAME.round_resets.temp_reroll_cost = nil
-                G.GAME.current_round.reroll_cost_increase = 0
-                calculate_reroll_cost(true)
-                G.E_MANAGER:add_event(Event({
-                    func = function()
-                        G.STATE = G.STATES.SHOP
-                        G.STATE_COMPLETE = false    
-                        return true
-                    end
-                }))
-            end
-            return true
-    end}))
     skip_blind(e)
 end

@@ -1,7 +1,7 @@
 [manifest]
 version = "1.0.0"
 dump_lua = true
-priority = 1
+priority = 3
 
 ## Check Blind
 [[patches]]
@@ -51,9 +51,9 @@ pattern = '''if not self.config.center.discovered and (self.ability.consumeable 
 position = "before"
 payload = '''
 if self.celadon_disabled and self.area == G.hand then
-    self.children.center:draw_shader('malverk_texture_selected', nil, self.ARGS.send_to_shader)
+    self.children.center:draw_shader('ortalab_celadon', nil, self.ARGS.send_to_shader)
     if self.children.front then
-        self.children.front:draw_shader('malverk_texture_selected', nil, self.ARGS.send_to_shader)
+        self.children.front:draw_shader('ortalab_celadon', nil, self.ARGS.send_to_shader)
     end
 end
 '''
@@ -88,7 +88,7 @@ target = "functions/state_events.lua"
 pattern = '''local nu_chip, nu_mult = G.GAME.selected_back:trigger_effect{context = 'final_scoring_step', chips = hand_chips, mult = mult}'''
 position = "before"
 payload = '''
-if G.GAME.blind.config.blind.key == 'bl_ortalab_steel' then
+if G.GAME.blind.config.blind.key == 'bl_ortalab_steel' and not G.GAME.blind.disabled then
     local min_value = G.GAME.blind.config.blind:update_score({chips = hand_chips, mult = mult})
     mult = mod_mult(min_value)
     hand_chips = mod_chips(min_value)
@@ -190,7 +190,7 @@ target = "functions/state_events.lua"
 pattern = '''if G.GAME.blind.name == 'The Serpent' and'''
 position = "before"
 payload = '''
-if G.GAME.blind.config.blind.key == 'bl_ortalab_ladder' then
+if G.GAME.blind.config.blind.key == 'bl_ortalab_ladder' and not G.GAME.blind.disabled then
     G.GAME.blind.config.blind.config.extra.action_count = G.GAME.blind.config.blind.config.extra.action_count + 1
     if G.GAME.blind.config.blind.config.extra.action_count < 2 then hand_space = 0 else G.GAME.blind.config.blind.config.extra.action_count = 0 end
 end

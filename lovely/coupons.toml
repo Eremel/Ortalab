@@ -37,7 +37,7 @@ pattern = '''if G.GAME.current_round.voucher and G.P_CENTERS[G.GAME.current_roun
 position = 'before'
 match_indent = true
 payload = '''
-if G.GAME.current_round.voucher_2 and G.P_CENTERS[G.GAME.current_round.voucher_2] then
+if G.GAME.current_round.voucher_2 and G.P_CENTERS[G.GAME.current_round.voucher_2] and not G.GAME.used_vouchers[G.GAME.current_round.voucher_2] then
     G.shop_vouchers.config.card_limit = 2
     local card = Card(G.shop_vouchers.T.x + G.shop_vouchers.T.w / 2, G.shop_vouchers.T.y, G.CARD_W, G.CARD_H,
         G.P_CARDS.empty, G.P_CENTERS[G.GAME.current_round.voucher_2], {
@@ -70,7 +70,7 @@ target = 'card.lua'
 pattern = '''G.GAME.pack_choices = self.config.center.config.choose or 1'''
 position = 'after'
 match_indent = true
-payload = '''if self.config.center.group_key and self.config.center.group_key:find('loteria') and G.GAME.used_vouchers['v_ortalab_cantor'] then print('pack'); G.GAME.pack_choices = G.GAME.pack_choices + G.GAME.Ortalab_loteria_voucher end'''
+payload = '''if self.config.center.group_key and self.config.center.group_key:find('loteria') and G.GAME.used_vouchers['v_ortalab_cantor'] then G.GAME.pack_choices = G.GAME.pack_choices + G.GAME.Ortalab_loteria_voucher end'''
 
 [[patches]]
 [patches.pattern]
@@ -93,26 +93,74 @@ payload = '''
 if G.GAME.used_vouchers.v_ortalab_natal_sign then
     for _, curr_zod in pairs(G.zodiacs) do
         for i=1, math.ceil(curr_zod.config.extra.temp_level / 4) do
-            G.E_MANAGER:add_event(Event({
-                delay = 2/G.SETTINGS.GAMESPEED,
-                trigger = 'after',
-                func = (function()
-                    attention_text({
-                        text = 'X'..G.GAME.natal_sign_rate,
-                        colour = G.C.WHITE,
-                        scale = 1, 
-                        hold = 2/G.SETTINGS.GAMESPEED,
-                        cover = curr_zod.HUD_zodiac,
-                        cover_colour = G.C.RED,
-                        align = 'cm',
-                        })
-                    play_sound('multhit2', 0.7, 0.4)
-                    return true
-                end)
-            }))
+            if not Ortalab.config.zodiac_skip then 
+                G.E_MANAGER:add_event(Event({
+                    delay = 2/G.SETTINGS.GAMESPEED,
+                    trigger = 'after',
+                    func = (function()
+                        attention_text({
+                            text = 'X'..G.GAME.natal_sign_rate,
+                            colour = G.C.WHITE,
+                            scale = 1, 
+                            hold = 2/G.SETTINGS.GAMESPEED,
+                            cover = curr_zod.HUD_zodiac,
+                            cover_colour = G.C.RED,
+                            align = 'cm',
+                            })
+                        play_sound('multhit2', 0.7, 0.4)
+                        return true
+                    end)
+                }))
+            end
             mult = mod_mult(mult*G.GAME.natal_sign_rate)
             update_hand_text({delay = 0}, {mult = mult})
         end
     end
 end
 '''
+
+[[patches]]
+[patches.regex]
+target = "functions/button_callbacks.lua"
+pattern = '''(?<indent>[\t ]*)for i = 1, #G.GAME[A-z\.\:\n\t _(',)~={}]*return true\n[\t ]*end\n[\t ]*}\)\)'''
+position = "at"
+payload = '''
+    for i = 1, #G.GAME.tags do
+        if G.GAME.tags[i]:apply_to_run({type = 'new_blind_choice'}) then break end
+    end
+    G.E_MANAGER:add_event(Event({
+        trigger = 'after',
+        func = function()
+            if G.GAME.used_vouchers['v_ortalab_home_delivery'] then
+                if G.blind_select then 
+                    G.blind_select:remove()
+                    G.blind_prompt_box:remove()
+                    G.blind_select = nil
+                end
+                local prev_state = G.STATE
+                G.GAME.current_round.jokers_purchased = 0
+                G.GAME.current_round.used_packs = {}
+                local chaos = find_joker('Chaos the Clown')
+                G.GAME.current_round.free_rerolls = #chaos
+                G.GAME.current_round.free_rerolls = G.GAME.current_round.free_rerolls + (G.GAME.current_round.ortalab_rerolls or 0)
+                G.GAME.round_resets.temp_reroll_cost = nils
+                G.GAME.current_round.reroll_cost_increase = 0
+                calculate_reroll_cost(true)
+                G.E_MANAGER:add_event(Event({
+                    trigger = 'after',
+                    blocking = false,
+                    func = function()
+                    if #G.E_MANAGER.queues.base > 2 or G.GAME.PACK_INTERRUPT then return false end
+                        G.STATE = G.STATES.SHOP
+                        G.STATE_COMPLETE = false
+                        return true
+                    end
+                }))
+            end
+            return true
+    end}))
+    return true
+end
+}))
+'''
+line_prepend = "$indent"

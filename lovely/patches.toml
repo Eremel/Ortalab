@@ -97,6 +97,16 @@ zodiac_hands = {'['..localize('k_poker_hand')..']', '['..localize('k_poker_hand'
 '''
 [[patches]]
 [patches.pattern]
+target = 'tag.lua'
+pattern = '''add_tag(Tag(_context.tag.key))'''
+position = 'at'
+match_indent = true
+payload = '''
+add_tag(Tag(_context.tag.key, false, _context.tag.ability.blind_type))
+'''
+
+[[patches]]
+[patches.pattern]
 target = 'functions/UI_definitions.lua'
 pattern = '''local _tag = Tag(G.GAME.round_resets.blind_tags[blind_choice], nil, blind_choice)'''
 position = 'after'

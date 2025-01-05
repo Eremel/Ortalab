@@ -16,10 +16,20 @@ return {
 				"objects in the collection",
 				"Requires restart"
 			},
-			ortalab_config_loteria_skip = 'Skip Loteria Animations',
+			ortalab_config_loteria_skip = 'Loteria',
 			ortalab_config_loteria_skip_desc = {
 				'Skip the animations of',
 				'most Loteria cards'
+			},
+			ortalab_config_enhancement_skip = 'Enhancement',
+			ortalab_config_enhancement_skip_desc = {
+				'Skip the animations of',
+				'most Enhancement\'s effects'
+			},
+			ortalab_config_zodiac_skip = 'Zodiac',
+			ortalab_config_zodiac_skip_desc = {
+				'Skip the animations of',
+				'most Zodiac effects'
 			},
 			ortalab_hide_intro = 'Don\'t show again',
 			ortalab_toggle_intro = 'Skip Intro Screen',
@@ -57,13 +67,16 @@ return {
 			ortalab_minimised = 'Minimised!',
 			ortalab_rank = 'certain rank',
 			ortalab_zodiac_add = '+1 Zodiac',
+			ortalab_loteria_add = '+1 Loteria',
 			ortalab_forklift = '+2 slots',
 			ortalab_forklift_loss = '-2 slots',
 			ortalab_zodiac_upgraded = ' upgraded!',
 			ortalab_zodiac_added = ' added!',
 			ortalab_zodiac_active = ' active!',
 			ortalab_zodiac_no_decay = 'No decay!',
-			ortalab_back = 'Let me play!'
+			ortalab_back = 'Let me play!',
+			ortalab_blind_no_rank = 'no rank',
+			ortalab_blind_no_rank_caps = 'No rank'
         },
 		['labels'] = {
 			ortalab_greyscale = 'Greyscale',
@@ -627,7 +640,7 @@ return {
 			['j_ortalab_mathmagician'] = {
 				["name"] = "Mathmagician",
 				["text"] = {
-					"Creates a random {C:Loteria}Loteria{}",
+					"Creates a random {C:loteria}Loteria{}",
 					"card if discarded hand",
 					"contains 2 {C:attention}odd cards",
 					"and 2 {C:attention}even cards",
@@ -1001,7 +1014,9 @@ return {
 				["name"] = "Still Water",
 				["text"] = {
 					'Gains {C:red}+#1#{} Mult for',
-					'each {C:attention}unscored{} card',
+					'each {C:attention}hand{} with',
+					'{C:attention}unscored{} cards',
+					-- 'each {C:attention}unscored{} card',
 					'{C:inactive}(Currently {C:red}+#2#{C:inactive} Mult)'
 				},
 			},
@@ -1103,7 +1118,7 @@ return {
 					"Enhances {C:attention}#1#{} random",
                     "cards into",
                     "{C:attention}Bent Cards",
-					"{C:inactive,s:0.8}Prioritise unenhanced cards"
+					"{C:inactive,s:0.8}Weighted towards unenhanced cards"
 				},
 			},
 			["c_ortalab_lot_melon"] = {
@@ -1112,7 +1127,7 @@ return {
 					"Enhances {C:attention}#1#{} random",
                     "cards into",
                     "{C:attention}Recycled Cards",
-					"{C:inactive,s:0.8}Prioritise unenhanced cards"
+					"{C:inactive,s:0.8}Weighted towards unenhanced cards"
 				},
 			},
 			["c_ortalab_lot_mandolin"] = {
@@ -1121,7 +1136,7 @@ return {
 					"Enhances {C:attention}#1#{} random",
                     "cards into",
                     "{C:attention}Post Cards",
-					"{C:inactive,s:0.8}Prioritise unenhanced cards"
+					"{C:inactive,s:0.8}Weighted towards unenhanced cards"
 				},
 			},
 			["c_ortalab_lot_rose"] = {
@@ -1130,7 +1145,7 @@ return {
 					"Enhances {C:attention}#1#{} random",
                     "cards into",
                     "{C:attention}Cosmic Cards",
-					"{C:inactive,s:0.8}Prioritise unenhanced cards"
+					"{C:inactive,s:0.8}Weighted towards unenhanced cards"
 				},
 			},
             ["c_ortalab_lot_tree"] = {
@@ -1147,7 +1162,7 @@ return {
 					"Enhances {C:attention}#1#{} random",
                     "cards into",
                     "{C:attention}Rusty Cards",
-					"{C:inactive,s:0.8}Prioritise unenhanced cards"
+					"{C:inactive,s:0.8}Weighted towards unenhanced cards"
 				},
 			},
 			["c_ortalab_lot_bird"] = {
@@ -1156,7 +1171,7 @@ return {
 					"Enhances {C:attention}#1#{} random",
                     "cards into",
                     "{C:attention}Sand Cards",
-					"{C:inactive,s:0.8}Prioritise unenhanced cards"
+					"{C:inactive,s:0.8}Weighted towards unenhanced cards"
 				},
 			},
             ["c_ortalab_lot_rooster"] = {
@@ -1191,7 +1206,7 @@ return {
 					"Enhances {C:attention}#1#{} random",
                     "cards into",
                     "{C:attention}Index Cards",
-					"{C:inactive,s:0.8}Prioritise unenhanced cards"
+					"{C:inactive,s:0.8}Weighted towards unenhanced cards"
 				},
 			},
             ["c_ortalab_lot_heron"] = {
@@ -1240,7 +1255,7 @@ return {
 					"Enhances {C:attention}#1#{} random",
                     "cards into",
                     "{C:attention}Ore Cards",
-					"{C:inactive,s:0.8}Prioritise unenhanced cards"
+					"{C:inactive,s:0.8}Weighted towards unenhanced cards"
 				},
 			},
             ["c_ortalab_lot_bottle"] = {
@@ -2059,19 +2074,19 @@ return {
             },
 		},
 		['Stake'] = {
-			['stake_ortalab_1'] = {
+			['stake_ortalab_diamond'] = {
 				name = "Ortalab Stake",
 				text = {
 				"Play with only",
 				"{C:Ortalab}Ortalab{} content"
 				}
 			},
-			['stake_ortalab_2'] = {
+			['stake_ortalab_triangle'] = {
 				["name"] = 'Ortalab Stake II',
 				["text"] = {
 					"Required score scales",
                     "faster for each {C:attention}Ante",
-                    "{s:0.8}Applies Ruby Stake"
+                    "{s:0.8}Applies Ortalab Stake II"
 				}
 			}
 		},
@@ -2193,8 +2208,8 @@ return {
 			['bl_ortalab_reed'] = {
 				name = 'The Reed',
 				text = {
-					'#1#s, #2#s, #3#s', 
-					'and #4#s are debuffed'
+					'#1#, #2#, #3#', 
+					'and #4# are debuffed'
 				}
 			},
 			['bl_ortalab_reed_collection'] = {
@@ -2209,7 +2224,7 @@ return {
 				text = {
 					'+#1# hand size,',
 					'cards are only drawn',
-					'after #2# actions'
+					'after every #2# actions'
 				}
 			},
 			['bl_ortalab_hearth'] = {

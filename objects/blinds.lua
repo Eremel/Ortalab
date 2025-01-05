@@ -164,7 +164,7 @@ SMODS.Blind({
         delay(0.7)
     end,
     defeat = function(self)
-        G.hand:change_size(self.config.extra.hands_removed)
+        if not G.GAME.blind.disabled then G.hand:change_size(self.config.extra.hands_removed) end
     end,
     disable = function(self)
         G.hand:change_size(self.config.extra.hands_removed)
@@ -225,6 +225,16 @@ SMODS.Blind({
     end,
     recalc_debuff = function(self, card, from_blind)
         return card.debuff
+    end,
+    disable = function(self)
+        for _, card in pairs(G.playing_cards) do
+            if card.top_check then card:set_debuff(); card.top_check = nil end
+        end
+    end,
+    defeat = function(self)
+        for _, card in pairs(G.playing_cards) do
+            if card.top_check then card:set_debuff(); card.top_check = nil end
+        end
     end
 })
 
@@ -328,7 +338,11 @@ SMODS.Blind({
     end,
     debuff_hand = function(self, cards, hand, handname, check)
         local _,_,_,scoring_hand,_ = G.FUNCS.get_poker_hand_info(cards)
-        if #scoring_hand ~= #cards then return true end
+        local always_scores_count = 0
+        for _, card in pairs(cards) do
+            if card.config.center.always_scores then always_scores_count = always_scores_count + 1 end
+        end
+        if #scoring_hand + always_scores_count ~= #cards then return true end
     end,
 })
 
@@ -425,7 +439,7 @@ SMODS.Blind({
         G.hand:change_size(self.config.extra.hand_size)
     end,
     defeat = function(self)
-        G.hand:change_size(-self.config.extra.hand_size)
+        if not G.GAME.blind.disabled then G.hand:change_size(-self.config.extra.hand_size) end
     end,
     disable = function(self)
         G.hand:change_size(-self.config.extra.hand_size)
@@ -482,9 +496,15 @@ SMODS.Blind({
     end,
     disable = function(self)
         self.triggered = nil
+        for _, card in pairs(G.playing_cards) do
+            if card.debuff then card:set_debuff() end
+        end
     end,
     defeat = function(self)
         self.triggered = nil
+        for _, card in pairs(G.playing_cards) do
+            if card.debuff then card:set_debuff() end
+        end
     end
 })
 
@@ -550,7 +570,7 @@ SMODS.Blind({
                 table.insert(ranks, k)
             end
             table.sort(ranks, function(a, b) return a < b end)
-            return {vars = {ranks[1], ranks[2], ranks[3], ranks[4]}}
+            return {vars = {ranks[1] or localize('ortalab_blind_no_rank_caps'), ranks[2] or localize('ortalab_blind_no_rank'), ranks[3] or localize('ortalab_blind_no_rank'), ranks[4] or localize('ortalab_blind_no_rank')}}
         else
             return {key = 'bl_ortalab_reed_collection', vars = {self.config.extra.debuff_count}}
         end
@@ -561,12 +581,14 @@ SMODS.Blind({
     set_blind = function(self)
         local possible_ranks = {}
         for _, card in pairs(G.playing_cards) do
-            if not SMODS.Ranks[card.base.value].face then possible_ranks[card.base.value] = card.base.value end
+            if not (card.ability.effect == 'Stone Card' or card.config.center.no_rank) and not SMODS.Ranks[card.base.value].face then possible_ranks[card.base.value] = card.base.value end
         end
-        for i=1, self.config.extra.debuff_count do
-            local rank = pseudorandom_element(possible_ranks, pseudoseed('ortalab_reed'))
-            self.config.extra.ranks[rank] = true
-            possible_ranks[rank] = nil
+        if table.size(possible_ranks) > 0 then
+            for i=1, math.min(self.config.extra.debuff_count, table.size(possible_ranks)) do
+                local rank = pseudorandom_element(possible_ranks, pseudoseed('ortalab_reed'))
+                self.config.extra.ranks[rank] = true
+                possible_ranks[rank] = nil
+            end
         end
         self.triggered = true
         G.GAME.blind:set_text()
@@ -600,7 +622,7 @@ SMODS.Blind({
     in_pool = function(self)
         local possible_ranks = {}
         for _, card in pairs(G.playing_cards or {}) do
-            if not SMODS.Ranks[card.base.value].face then possible_ranks[card.base.value] = card.base.value end
+            if not (card.ability.effect == 'Stone Card' or card.config.center.no_rank) and not SMODS.Ranks[card.base.value].face then possible_ranks[card.base.value] = card.base.value end
         end
         if table.size(possible_ranks) > self.config.extra.debuff_count then return true end
         return false
@@ -615,7 +637,7 @@ SMODS.Blind({
     mult = 2,
     boss = {min = 1, max = 10},
     boss_colour = HEX('439a4f'),
-    config = {extra = {hand_size = 2, actions = 2, action_count = 0}},
+    config = {extra = {hand_size = 2, actions = 2, action_count = 2}},
     loc_vars = function(self, info_queue, card)
         if card and Ortalab.config.artist_credits then info_queue[#info_queue+1] = {generate_ui = ortalab_artist_tooltip, key = 'flare'} end
         return {vars = {self.config.extra.hand_size, self.config.extra.actions}}
@@ -627,7 +649,7 @@ SMODS.Blind({
         G.hand:change_size(self.config.extra.hand_size)
     end,
     defeat = function(self)
-        G.hand:change_size(-self.config.extra.hand_size)
+        if not G.GAME.blind.disabled then G.hand:change_size(-self.config.extra.hand_size) end
     end,
     disable = function(self)
         G.hand:change_size(-self.config.extra.hand_size)
@@ -755,7 +777,7 @@ SMODS.Blind({
                 table.insert(ranks, k)
             end
             table.sort(ranks, function(a, b) return a < b end)
-            return {vars = {ranks[1], ranks[2], ranks[3], ranks[4], ranks[5]}}
+            return {vars = {ranks[1] or localize('ortalab_blind_no_rank_caps'), ranks[2] or localize('ortalab_blind_no_rank'), ranks[3] or localize('ortalab_blind_no_rank'), ranks[4] or localize('ortalab_blind_no_rank'), ranks[5] or localize('ortalab_blind_no_rank')}}
         else
             return {key = 'bl_ortalab_beam_collection', vars = {self.config.extra.flipped}}
         end
@@ -766,12 +788,14 @@ SMODS.Blind({
     set_blind = function(self)
         local possible_ranks = {}
         for _, card in pairs(G.playing_cards) do
-            if not SMODS.Ranks[card.base.value].face then possible_ranks[card.base.value] = card.base.value end
+            if not (card.ability.effect == 'Stone Card' or card.config.center.no_rank) and not SMODS.Ranks[card.base.value].face then possible_ranks[card.base.value] = card.base.value end
         end
-        for i=1, self.config.extra.flipped do
-            local rank = pseudorandom_element(possible_ranks, pseudoseed('ortalab_beam'))
-            self.config.extra.ranks[rank] = true
-            possible_ranks[rank] = nil
+        if table.size(possible_ranks) > 0 then
+            for i=1, math.min(table.size(possible_ranks), self.config.extra.flipped) do
+                local rank = pseudorandom_element(possible_ranks, pseudoseed('ortalab_beam'))
+                self.config.extra.ranks[rank] = true
+                possible_ranks[rank] = nil
+            end
         end
         self.triggered = true
         G.GAME.blind:set_text()
@@ -791,7 +815,7 @@ SMODS.Blind({
     in_pool = function(self)
         local possible_ranks = {}
         for _, card in pairs(G.playing_cards or {}) do
-            if not SMODS.Ranks[card.base.value].face then possible_ranks[card.base.value] = card.base.value end
+            if not (card.ability.effect == 'Stone Card' or card.config.center.no_rank) and not SMODS.Ranks[card.base.value].face then possible_ranks[card.base.value] = card.base.value end
         end
         if table.size(possible_ranks) > self.config.extra.flipped then return true end
         return false
@@ -858,6 +882,16 @@ SMODS.Blind({
     end,
     recalc_debuff = function(self, card, from_blind)
         return card.debuff
+    end,
+    disable = function(self)
+        for _, card in pairs(G.playing_cards) do
+            if card.debuff then card:set_debuff() end
+        end
+    end,
+    defeat = function(self)
+        for _, card in pairs(G.playing_cards) do
+            if card.debuff then card:set_debuff() end
+        end
     end
 })
 
@@ -867,8 +901,12 @@ SMODS.Blind({
     pos = {x = 0, y = 22},
     dollars = 6,
     mult = 0.75,
-    boss = {min = 3, max = 10},
+    boss = {min = 3, max = 7},
     boss_colour = HEX('b52d2d'),
+    in_pool = function(self)
+        if G.GAME.round_resets.ante > 8 or G.GAME.round_resets.ante < 2 then return false end
+        return true
+    end,
     loc_vars = function(self, info_queue, card)
         if card and Ortalab.config.artist_credits then info_queue[#info_queue+1] = {generate_ui = ortalab_artist_tooltip, key = 'flare'} end
     end,
@@ -939,12 +977,12 @@ SMODS.Blind({
         return {vars = {self.config.extra.current}}
     end,
     disable = function(self)
-        for _, card in pairs(G.hand.cards) do
+        for _, card in pairs(G.playing_cards) do
             card.celadon_disabled = false
         end
     end,
     defeat = function(self)
-        for _, card in pairs(G.hand.cards) do
+        for _, card in pairs(G.playing_cards) do
             card.celadon_disabled = false
         end
     end,
@@ -967,6 +1005,8 @@ SMODS.Blind({
         return card.debuff
     end
 })
+
+SMODS.Shader({key = 'celadon', path = 'applied.fs'})
 
 function celadon_check(self, card)
     card.celadon_disabled = false
@@ -1011,7 +1051,7 @@ SMODS.Blind({
         G.hand:change_size(-self.config.extra.hand_size)
     end,
     disable = function(self)
-        G.hand:change_size(self.config.extra.hand_size)
+        if not G.GAME.blind.disabled then G.hand:change_size(self.config.extra.hand_size) end
     end,
     defeat = function(self)
         G.hand:change_size(self.config.extra.hand_size)
@@ -1068,7 +1108,9 @@ SMODS.Blind({
         for k, v in pairs(G.P_CARDS) do
             local _ = nil
             local _r, _s = string.sub(k, 3, 3), string.sub(k, 1, 1)
-            card_protos[#card_protos+1] = {s=_s,r=_r,e=nil,d=nil,g=nil}
+            if table.contains({'S', 'C','D','H'},_s) then
+                card_protos[#card_protos+1] = {s=_s,r=_r,e=nil,d=nil,g=nil}
+            end
         end
 
         table.sort(card_protos, function (a, b) return 
@@ -1078,6 +1120,7 @@ SMODS.Blind({
         for k, v in ipairs(card_protos) do
             card_from_control(v)
         end
+        self.original_deck_size = G.GAME.starting_deck_size
         G.GAME.starting_deck_size = #G.playing_cards
     end,
     disable = function(self)
@@ -1093,7 +1136,7 @@ SMODS.Blind({
         for _, card in ipairs(G.deck.cards) do
             table.insert(G.playing_cards, card)
         end
-        G.GAME.starting_deck_size = #G.playing_cards
+        G.GAME.starting_deck_size = self.original_deck_size
     end
 })
 

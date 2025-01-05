@@ -13,9 +13,10 @@ SMODS.Atlas({
 })
 
 SMODS.Stake({
-    key = "ortalab_1",
+    key = "diamond",
     applied_stakes = {},
     above_stake = 'gold',
+    prefix_config = {above_stake = {false}},
     atlas = 'stakes',
     pos = {x = 0, y = 0},
     shiny = true,
@@ -27,9 +28,9 @@ SMODS.Stake({
 })
 
 SMODS.Stake({
-    key = "ortalab_2",
-    applied_stakes = {'ortalab_1'},
-    above_stake = 'ortalab_1',
+    key = "triangle",
+    applied_stakes = {'diamond'},
+    above_stake = 'diamond',
     atlas = 'stakes',
     pos = {x = 1, y = 0},
     shiny = true,

@@ -112,11 +112,11 @@ target = "functions/state_events.lua"
 pattern = '''reset_idol_card()'''
 position = "before"
 payload = '''
-for i = 1, #G.jokers.cards do
-    if G.jokers.cards[i].ability.shinku then
+for _, joker in pairs(G.jokers.cards) do
+    if joker.ability.shinku then
         G.E_MANAGER:add_event(Event({
             func = function() 
-                G.jokers.cards[i]:start_dissolve()
+                joker:start_dissolve()
                 return true
         end}))   
     end
@@ -165,10 +165,17 @@ payload = '''if obj.set == 'Loteria' then nc = loteria_joker_save_check(card) en
 [[patches]]
 [patches.pattern]
 target = 'functions/button_callbacks.lua'
-pattern = "if G.STATE == G.STATES.TAROT_PACK or G.STATE == G.STATES.PLANET_PACK or G.STATE == G.STATES.SPECTRAL_PACK or G.STATE == G.STATES.SMODS_BOOSTER_OPENED then"
+pattern = "if not nc and card.area then card.area:remove_card(card) end"
 match_indent = true
-position = 'after'
-payload = '''card.from_booster = true'''
+position = 'before'
+payload = '''
+if card.area == G.pack_cards then
+    local blue_cards = SMODS.find_card('j_ortalab_blue_card')
+    for _, card in pairs(blue_cards) do
+        card.ability.extra.chips = card.ability.extra.chips + card.ability.extra.gain
+        card_eval_status_text(card, 'extra', nil, nil, nil, {message = '+'..card.ability.extra.gain, colour = G.C.BLUE})
+    end
+end'''
 
 
 # Miracle Cure
@@ -279,9 +286,7 @@ for i=1, #G.play.cards do
                         update_hand_text({delay = 0}, {mult = mult})
                         card_eval_status_text(G.play.cards[i], 'mult', effects[ii].mult, percent)
                     end
-                    
                 end
-
             end
         end
     end
@@ -300,7 +305,6 @@ payload = '''
 local freezers = SMODS.find_card('j_ortalab_freezer')
 if next(freezers) then
     for _, freezer in ipairs(freezers) do
-        print('freezer!')
         if not nc and pseudoseed('ortalab_freezer') > (G.GAME.probabilities.normal * freezer.ability.extra.chance) / freezer.ability.extra.denom then
             nc = true
             card_eval_status_text(freezer, 'extra', nil, nil, nil, {message = 'Saved!'})
@@ -317,7 +321,7 @@ pattern = "{n=G.UIT.T, config={text = localize('$'),colour = G.C.WHITE, scale = 
 match_indent = true
 position = 'before'
 payload = '''
-card.sell_cost < 0 and {n=G.UIT.T, config={text = '-',colour = G.C.WHITE, scale = 0.4, shadow = true}} or {n=G.UIT.R},
+(card and card.sell_cost or args.card.sell_cost) < 0 and {n=G.UIT.T, config={text = '-',colour = G.C.WHITE, scale = 0.4, shadow = true}} or {n=G.UIT.R},
 '''
 [[patches]]
 [patches.pattern]
@@ -326,7 +330,7 @@ pattern = "self.sell_cost_label = self.facing == 'back' and '?' or self.sell_cos
 match_indent = true
 position = 'after'
 payload = '''
-if self.sell_cost < 0 then self.sell_cost_label = self.sell_cost_label * -1 end
+if self.sell_cost < 0 and self.facing ~= 'back' then self.sell_cost_label = self.sell_cost_label * -1 end
 '''
 
 # Soil

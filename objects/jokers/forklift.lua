@@ -20,25 +20,25 @@ SMODS.Joker({
     end,
 	calculate = function (self, card, context)
         if context.using_consumeable and G.GAME.consumeable_usage_total.all >= card.ability.extra.target then
-            if not card.triggered then
+            if not card.ability.extra.triggered then
                 G.consumeables:change_size(card.ability.extra.slots)
                 card:juice_up()
                 card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize('ortalab_forklift')})
-                card.triggered = true
+                card.ability.extra.triggered = true
             end
         end
     end,
     remove_from_deck = function(self, card, from_debuff)
-        if card.triggered then
+        if card.ability.extra.triggered then
             G.consumeables:change_size(-1 * card.ability.extra.slots)
             card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize('ortalab_forklift_loss')})
         end
     end,
     add_to_deck = function(self, card, from_debuff)
-        if G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.all >= card.ability.extra.target then
+        if G.GAME.consumeable_usage_total and G.GAME.consumeable_usage_total.all >= card.ability.extra.target and not card.ability.extra.triggered then
             G.consumeables:change_size(card.ability.extra.slots)
             card_eval_status_text(card, 'extra', nil, nil, nil, {message = localize('ortalab_forklift')})
-            card.triggered = true    
+            card.ability.extra.triggered = true    
         end
     end
 })

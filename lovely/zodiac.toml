@@ -1,7 +1,7 @@
 [manifest]
 version = "1.0.0"
 dump_lua = true
-priority = 1
+priority = 2
 
 
 [[patches]]
@@ -63,12 +63,13 @@ position = 'before'
 match_indent = true
 payload = '''
 if saveTable then 
-    G.zodiacs = {}
+    self.zodiacs = {}
+    self.HUD_zodiac = {}
     local zodiacs = saveTable.zodiacs or {}
     for k, v in pairs(zodiacs) do
         local _zodiac = Zodiac('zodiac_ortalab_scorpio')
         _zodiac:load(v)
-        add_zodiac(_zodiac, true)
+        add_zodiac(_zodiac, true, true)
     end
 end
 '''
@@ -100,12 +101,14 @@ if G.zodiacs then
 
             for i=1, zodiac_current.config.extra.temp_level do
                 iou_count = iou_count + 1
-                update_hand_text({sound = 'button', volume = 0.7, pitch = 0.9, delay = 0}, {level=G.GAME.hands[text].level..'+'..iou_count})
-                mult = mod_mult(mult+G.GAME.hands[text].l_mult)
-                update_hand_text({delay = 0}, {mult = mult})
-                hand_chips = mod_chips(hand_chips+G.GAME.hands[text].l_chips)
-                update_hand_text({delay = 0}, {chips = hand_chips})
-                delay(0.3)
+                    update_hand_text({sound = 'button', volume = 0.7, pitch = 0.9, delay = 0}, {level=G.GAME.hands[text].level..'+'..iou_count})
+                    mult = mod_mult(mult+G.GAME.hands[text].l_mult)
+                    update_hand_text({delay = 0}, {mult = mult})
+                    hand_chips = mod_chips(hand_chips+G.GAME.hands[text].l_chips)
+                    update_hand_text({delay = 0}, {chips = hand_chips})
+                if not Ortalab.config.zodiac_skip then
+                    delay(0.3)
+                end
             end
         end
     end
