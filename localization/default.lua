@@ -2131,7 +2131,7 @@ return {
 				["text"] = {
 					"Required score scales",
                     "faster for each {C:attention}Ante",
-                    "{s:0.8}Applies Ortalab Stake II"
+                    "{s:0.8}Applies Ortalab Stake"
 				}
 			}
 		},
