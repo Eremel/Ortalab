@@ -173,3 +173,15 @@ function get_new_big()
     
     return boss
 end
+
+if next(SMODS.find_mod("AntePreview")) then
+    local predict_hook = predict_next_ante
+    function predict_next_ante()
+        local small_prediction = get_new_small()
+        local big_prediction = get_new_big()
+        local predictions = predict_hook()
+        predictions.Small.blind = small_prediction
+        predictions.Big.blind = big_prediction
+        return predictions
+    end
+end
