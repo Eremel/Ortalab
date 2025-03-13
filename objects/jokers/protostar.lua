@@ -22,7 +22,7 @@ SMODS.Joker({
             }
         end
         if context.after and not context.repetition and not context.individual and not context.blueprint then
-            local change = G.GAME.hands[card.ability.extra.poker_hand].played * card.ability.extra.change
+            local change = (G.GAME.hands[card.ability.extra.poker_hand] and G.GAME.hands[card.ability.extra.poker_hand].played or 0) * card.ability.extra.change
             if change >= card.ability.extra.chips then
                 card_eval_status_text(card,'extra', nil, nil, nil, {message = localize('ortalab_protostar')})
                 G.E_MANAGER:add_event(Event({
