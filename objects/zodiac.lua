@@ -72,9 +72,9 @@ function G.FUNCS.evaluate_play(e)
     if zodiac_current and zodiac_current.triggered then
         G.E_MANAGER:add_event(Event({
             trigger = 'after', delay = 0.2, func = function()
-				pcall(function()
-				    zodiac_current:remove_zodiac('')
-				end)
+		pcall(function()
+		    zodiac_current:remove_zodiac('')
+		end)
                 return true
             end}))
     elseif zodiac_current and zodiac_current.HUD_zodiac then
@@ -82,20 +82,20 @@ function G.FUNCS.evaluate_play(e)
             delay = 0.4,
             trigger = 'after',
             func = (function()
-				pcall(function() -- since the above wasn't enough, now we're doing try catch blocks
-                attention_text({
-                    text = '-'..G.GAME.ortalab.zodiacs.reduction,
-                    colour = G.C.WHITE,
-                    scale = 1, 
-                    hold = 1/G.SETTINGS.GAMESPEED,
-                    cover = zodiac_current.HUD_zodiac,
-                    cover_colour = G.ARGS.LOC_COLOURS.Zodiac,
-                    align = 'cm',
-                    })
-					play_sound('generic1', 0.9 + math.random()*0.1, 0.8)
-					play_sound('holo1', 1.2 + math.random()*0.1, 0.4)
-				end)
-				return true
+		pcall(function() -- since the above wasn't enough, now we're doing try catch blocks
+	                attention_text({
+	                    text = '-'..G.GAME.ortalab.zodiacs.reduction,
+	                    colour = G.C.WHITE,
+	                    scale = 1, 
+	                    hold = 1/G.SETTINGS.GAMESPEED,
+	                    cover = zodiac_current.HUD_zodiac,
+	                    cover_colour = G.ARGS.LOC_COLOURS.Zodiac,
+	                    align = 'cm',
+	                    })
+			play_sound('generic1', 0.9 + math.random()*0.1, 0.8)
+			play_sound('holo1', 1.2 + math.random()*0.1, 0.4)
+		end)
+		return true
             end)
         }))
     end
