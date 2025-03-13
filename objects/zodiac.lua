@@ -75,7 +75,7 @@ function G.FUNCS.evaluate_play(e)
                 zodiac_current:remove_zodiac('')
                 return true
             end}))
-    elseif zodiac_current then
+    elseif zodiac_current and zodiac_current.HUD_zodiac then
         G.E_MANAGER:add_event(Event({
             delay = 0.4,
             trigger = 'after',
