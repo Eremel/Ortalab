@@ -85,6 +85,32 @@ if not G.GAME.zodiac_choices[G.GAME.round_resets.ante][type] then
     G.GAME.zodiac_choices[G.GAME.round_resets.ante][type] = {zodiac1, zodiac2}
 end
 '''
+# Constellation Patch for Next Ante Preview
+[[patches]]
+[patches.pattern]
+target = '=[SMODS AntePreview "main.lua"]'
+pattern = '''G.orbital_hand = pseudorandom_element(hands, pseudoseed('orbital'))'''
+position = 'before'
+match_indent = true
+payload = '''
+hands = {}
+for k, _ in pairs(G.ZODIACS) do
+    table.insert(hands, k)
+end
+local zodiac1 = pseudorandom_element(hands, pseudoseed('constellation_patch'))
+local zodiac2 = pseudorandom_element(hands, pseudoseed('constellation_patch'))
+while zodiac1 == zodiac2 do
+    zodiac2 = pseudorandom_element(hands, pseudoseed('constellation_patch'))
+end
+G.zodiac_choices = {zodiac1, zodiac2}
+'''
+[[patches]]
+[patches.pattern]
+target = '=[SMODS AntePreview "main.lua"]'
+pattern = '''G.orbital_hand = nil'''
+position = 'after'
+match_indent = true
+payload = '''G.zodiac_choices = nil'''
 
 [[patches]]
 [patches.pattern]

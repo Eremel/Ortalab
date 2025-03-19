@@ -162,6 +162,32 @@ SMODS.Tag({
         if card and Ortalab.config.artist_credits then info_queue[#info_queue+1] = {generate_ui = ortalab_artist_tooltip, key = 'kosze'} end
         return {vars = {G.GAME.last_selected_tag and localize({type = 'name_text', set = 'Tag', key = G.GAME.last_selected_tag.key}) or localize('ortalab_no_tag')}}
     end,
+    preview_ui = function(self)
+		if G.GAME.last_selected_tag and G.GAME.last_selected_tag.key ~= 'tag_ortalab_rewind' then
+            local tag = Tag(G.GAME.last_selected_tag.key, true)
+            if G.GAME.last_selected_tag.key == 'tag_orbital' then
+                local _poker_hands = {}
+                for k, v in pairs(G.GAME.hands) do
+                    if v.visible then _poker_hands[#_poker_hands+1] = k end
+                end
+                tag.ability.orbital_hand = pseudorandom_element(_poker_hands, pseudoseed('rewind_orbital'))
+            end
+			tag.ability.orbital_hand = G.GAME.cry_memory_orbital
+			local tag_sprite
+			_, tag_sprite = tag:generate_UI(0.4)
+			return {
+				n = G.UIT.C,
+				nodes = { {
+					n = G.UIT.R,
+					nodes = {
+						{ n = G.UIT.T, config = { text = ">", colour = G.C.WHITE, scale = 0.4 } },
+						{ n = G.UIT.O, config = { object = tag_sprite } },
+						G.P_TAGS[G.GAME.last_selected_tag.key].preview_ui and G.P_TAGS[G.GAME.last_selected_tag.key].preview_ui(tag)
+					}
+				} }
+			}
+		end
+	end,
     apply = function(self, tag, context)
         if context.type == self.config.type then
             if G.GAME.last_selected_tag and G.GAME.last_selected_tag.key then
@@ -338,6 +364,9 @@ SMODS.Tag({
         if Ortalab.config.artist_credits then info_queue[#info_queue+1] = {generate_ui = ortalab_artist_tooltip, key = 'kosze'} end
         return {vars = {self.config.dollars, (G.GAME.blinds_defeated or 0)*self.config.dollars}}
     end,
+    preview_ui = function(self)
+        return { n = G.UIT.T, config = { text = localize("$") .. tostring(self.config.dollars * (G.GAME.blinds_defeated or 0)), colour = G.C.MONEY, scale = 0.4 } }
+    end,
     apply = function(self, tag, context)
         if context.type == self.config.type then
             tag:yep('+', G.C.MONEY,function() 
@@ -361,6 +390,9 @@ SMODS.Tag({
     loc_vars = function(self, info_queue, card)
         if Ortalab.config.artist_credits then info_queue[#info_queue+1] = {generate_ui = ortalab_artist_tooltip, key = 'kosze'} end
         return {vars = {self.config.dollars, (G.GAME.unused_hands or 0)*self.config.dollars}}
+    end,
+    preview_ui = function(self)
+        return { n = G.UIT.T, config = { text = localize("$") .. tostring(self.config.dollars * (G.GAME.unused_hands or 0)), colour = G.C.MONEY, scale = 0.4 } }
     end,
     apply = function(self, tag, context)
         if context.type == self.config.type then
@@ -459,6 +491,16 @@ SMODS.Tag({
         else
             return {vars = {'['..localize('k_poker_hand')..']', '['..localize('k_poker_hand')..']'}}
         end
+    end,
+    preview_ui = function(self)
+        local hand_uis = {}
+        for _, zodiac in ipairs(self.ability.zodiac_hands) do
+            local hand_center = SMODS.PokerHands[G.ZODIACS[zodiac].config.extra.hand_type]
+            local hand_sprite = Sprite(0, 0, 1, 0.13 / 0.53,
+                G.ASSET_ATLAS[hand_center.atlas or "nap_poker_hands"], hand_center.pos or { x = 0, y = 0 })
+            hand_uis[#hand_uis+1] = { n = G.UIT.R, nodes = {{ n = G.UIT.O, config = { object = hand_sprite } }} }
+        end
+        return { n = G.UIT.C, nodes = hand_uis }
     end,
     apply = function(self, tag, context)
         if context.type == self.config.type then
